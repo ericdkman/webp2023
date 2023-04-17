@@ -35,8 +35,7 @@
             });
         }
 
-        //page button
-        function pagebutton(data){
+        function pagebutton(data){//調整網頁序的地方
             var page = document.getElementById("page_btn");
             var btnNmu = Math.ceil(data.length/10);
             showPage(data, curPage);
@@ -69,8 +68,7 @@
             page.appendChild(btn);
         };
 
-        //searchTitle function
-        function removeBtn() {
+        function removeBtn() {//用於尋找title
             let btnSearchPage = document.getElementById("buttonpageup");
             btnSearchPage.remove();
             let btnSearchPageDown = document.getElementById("buttonpagedown");
