@@ -1,1 +1,136 @@
-try
+<!DOCTYPE html>
+  <html>
+  <head>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+      <meta charset="UTF-8">
+      <script>
+          const openurl = "https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&category=6";
+        // 模板XMLHtmlRequest
+          var curPage = 1;//頁碼
+          fetch(openurl, {method:'GET'})
+          .then(res => {
+            return res.json();
+          }).then(result => {
+            console.log(result)
+            dataset = result;
+            showDataset(dataset.slice((curPage-1)*10,curPage*10));
+            pagebutton(dataset);
+          });
+          function showPage(curData, curPage) {//document 指此文件
+              var page = document.getElementById("page_btn");//屬性page_btn
+              var btnNmu = Math.ceil(curData.length/10);//math.ceil計算總頁數，10條為一頁
+              page.innerHTML = curPage+' / '+btnNmu + ' 頁';
+          }
+  
+          function showDataset(dataset) {
+              var myTable = document.getElementById("csie");//getElementById() 是 DOM API方法
+              for(var i = myTable.rows.length - 1; i > 0; i--)
+                  myTable.deleteRow(i);
+              dataset.forEach(function(data, index) {
+                  var row = myTable.insertRow(-1);
+                  row.insertCell(0).innerHTML = data['title'];
+                  row.insertCell(1).innerHTML = data['showInfo'][0]['location'];
+                  row.insertCell(2).innerHTML = data['showInfo'][0]['price'];
+              });
+          }
+  
+          //page button
+          function pagebutton(data){//for 上一頁 & 下一頁
+              var page = document.getElementById("page_btn");
+              var btnNmu = Math.ceil(data.length/10);
+              showPage(data, curPage);
+  
+              var btn = document.createElement("button");
+              btn.setAttribute("id","buttonpageup");//將btn id'屬性'設定為buttonpageup
+              btn.innerHTML = "上一頁";//innerHTML也是屬性，取
+              btn.onclick = function(){
+                  if(curPage > 1){
+                      curPage--;
+                      showPage(data, curPage);
+                      showDataset(data.slice((curPage-1)*10,curPage*10));
+                      pagebutton(data);
+                  }
+                  
+              }
+              page.appendChild(btn);
+  
+              var btn = document.createElement("button");
+              btn.setAttribute("id","buttonpagedown");
+              btn.innerHTML = "下一頁";
+              btn.onclick = function nextPage(){
+                  if(curPage < btnNmu){
+                      curPage++;
+                      showPage(data, curPage);
+                      showDataset(data.slice((curPage-1)*10,curPage*10));
+                      pagebutton(data);
+                  }
+              };
+              page.appendChild(btn);
+          };
+  
+          //searchTitle function
+          function removeBtn() {
+              let btnSearchPage = document.getElementById("buttonpageup");
+              btnSearchPage.remove();
+              let btnSearchPageDown = document.getElementById("buttonpagedown");
+              btnSearchPageDown.remove();
+          }
+  
+          function searchTitle(){
+              var searchTitlePage = 1;
+              searchTitlePage = 1;
+              curPage = 1;
+              console.log(searchTitlePage);
+              var searchTitle = document.getElementById("searchTitle").value;
+              removeBtn();
+  
+              //check searchTitle is empty
+              if(searchTitle=='') {
+                  var page = document.getElementById("page_btn");
+                  showPage(dataset, curPage);
+                  showDataset(dataset.slice((curPage-1)*10,curPage*10));
+                  pagebutton(dataset);
+                  return;
+              }
+              var searchResult = [];
+              //claer page button
+              dataset.forEach(function(data, index) {
+                  if(data['title'].indexOf(searchTitle) != -1){
+                      searchResult.push(data);
+                  }
+              });
+  
+              showPage(dataset, searchTitlePage);
+              pagebutton(searchResult);
+              showSearchDataset(searchResult.slice((curPage-1)*10,curPage*10), searchTitlePage);
+          }
+  
+          function showSearchDataset(searchResult, searchTitlePage) {
+              var myTable = document.getElementById("csie");
+              for(var i = myTable.rows.length - 1; i > 0; i--)
+                  myTable.deleteRow(i);
+              searchResult.forEach(function(data, index) {
+                  var row = myTable.insertRow(-1);
+                  row.insertCell(0).innerHTML = data['title'];
+                  row.insertCell(1).innerHTML = data['showInfo'][0]['location'];
+                  row.insertCell(2).innerHTML = data['showInfo'][0]['price'];
+              });
+          }
+      </script>
+  </head>
+  
+  <body>
+      <div class="grid-container">
+      <h1>景點觀光展覽資訊</h1>
+      <input type="text" id="searchTitle" onchange="searchTitle()"/>
+      </div>
+          <table id="csie" class="table table-dark">
+              <tr>
+                  <th>名稱</th>
+                  <th>地址</th>
+                  <th>票價</th>
+              </tr>
+          </table>
+      <div id="page_btn"></div>
+   </body>
+  </html>
